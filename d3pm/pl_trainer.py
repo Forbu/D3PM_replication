@@ -7,6 +7,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import einops
+
 from tqdm import tqdm
 
 import lightning.pytorch as pl
@@ -95,25 +97,32 @@ class MnistTrainer(pl.LightningModule):
         Method to generate some images.
         """
         # generate some images
+        device = self.device
 
         # initialize the data with random values between 0 and num_bins
-        data = torch.randint(0, self.num_bins, (1, 28, 28)).long()
+        data = torch.randint(0, self.num_bins, (1, 28, 28)).long().to(device)
 
         # initialize the time step
-        time_step = torch.tensor([[1.0]])
+        time_step = torch.tensor([[1.0]]).to(device)
 
         # plot time step
         plot_index = [0, 50, 100, 150, 200, 240]
 
         for i in range(self.nb_time_steps):
             # get the logits
+
             logits = self.forward(data, time_step)
 
             # get the probabilities
-            proba = F.softmax(logits, dim=1)
+            logits_flatten = einops.rearrange(logits, "a b c d -> (a c d) b")
+            
+            proba = F.softmax(logits_flatten, dim=1)
 
             # sample from the probabilities
             data = torch.distributions.Categorical(probs=proba).sample()
+
+            data = einops.rearrange(data, "(a c d) -> a c d",
+                      a=logits.shape[0], c=logits.shape[2], d=logits.shape[3])
 
             # update the time step
             time_step = time_step - 1.0 / self.nb_time_steps
@@ -127,13 +136,13 @@ class MnistTrainer(pl.LightningModule):
         Saves the image.
         """
         # plot the data
-        plt.imshow(data.squeeze(), cmap="gray")
+        plt.imshow(data.squeeze().cpu().numpy(), cmap="gray")
 
         # title
         plt.title(f"data = {i}")
 
         # save the figure
-        plt.savefig(f"/home/images/data_{i}.png")
+        plt.savefig(f"/content/images/data_{i}.png")
 
         # close the figure
         plt.close()
