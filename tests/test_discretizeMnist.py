@@ -21,7 +21,6 @@ def test_discretized_mnist():
 
     # we want to plot the first 0, 50, 100, 150, 200, 250 images
     idxs = [0, 50, 100, 150, 200, 250]
-    
 
     for idx in idxs:
         data_t, data_next, label, data, idx_step = dataset[idx]
@@ -67,17 +66,16 @@ def test_discretized_mnist():
 
         # title
         plt.title(f"data_next - data_t = {idx}")
-        
+
         # save the figure
         plt.savefig(f"tests/figures/data_next_minus_data_t_{idx}.png")
 
         # close the figure
         plt.close()
-        
+
         # count the number of each element
         unique, counts = np.unique(data_t.numpy(), return_counts=True)
 
         print(dict(zip(unique, counts)))
-        
 
     exit()
