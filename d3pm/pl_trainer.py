@@ -16,6 +16,12 @@ import lightning.pytorch as pl
 from d3pm.model import MnistModel
 
 
+def init_weights(m):
+    if isinstance(m, nn.Linear):
+        torch.nn.init.xavier_uniform(m.weight)
+        m.bias.data.fill_(0.01)
+
+
 class MnistTrainer(pl.LightningModule):
     """
     Trainer module for the MNIST model.
@@ -36,12 +42,12 @@ class MnistTrainer(pl.LightningModule):
         self.nb_time_steps = nb_time_steps
 
         # create the model
-        self.model = MnistModel(
-            hidden_size=hidden_dim, num_bins=num_bins
-        )
+        self.model = MnistModel(hidden_size=hidden_dim, num_bins=num_bins)
 
         # create the loss function
         self.loss = nn.CrossEntropyLoss()
+
+        self.apply(init_weights)
 
     def forward(self, data, t):
         """
