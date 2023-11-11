@@ -110,7 +110,7 @@ class MnistTrainer(pl.LightningModule):
         device = self.device
 
         # initialize the data with random values between 0 and num_bins
-        data = torch.randint(0, self.num_bins, (1, 28, 28)).long().to(device)
+        data = torch.randint(0, self.num_bins, (1, 224, 224)).long().to(device)
 
         # initialize the time step
         time_step = torch.tensor([[1.0]]).to(device)
