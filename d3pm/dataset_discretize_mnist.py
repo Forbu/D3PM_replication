@@ -106,7 +106,8 @@ class DiscretizeD3PMMNIST(Dataset):
         idx_step = idx % self.nb_steps
 
         tmp_transition = torch.tensor(self.cumulated_transition[idx_step, :, :])
-        tmp_transition_next = torch.tensor(self.transition_matrices[idx_step, :, :])
+        tmp_transition_next = torch.tensor(self.transition_matrices[min(idx_step+1, self.nb_steps-1),
+                                                         :, :])
 
         data, label = self.dataset[idx_data]
 
@@ -118,24 +119,18 @@ class DiscretizeD3PMMNIST(Dataset):
         data_flatten = data.view(-1).long()  # 10000
 
         # apply the transition matrix
-        data_bernouilli_proba = tmp_transition[data_flatten, :]
-
-        data_sample_t = torch.distributions.bernoulli.Bernoulli(
+        data_bernouilli_proba = tmp_transition[data_flatten]
+        
+        data_sample_t = torch.distributions.categorical.Categorical(
             data_bernouilli_proba
         ).sample()
-
-        # transform one hot encoding to a single value
-        data_sample_t = torch.argmax(data_sample_t, dim=1)
 
         # now we want to create the image at time t+1
         data_bernouilli_proba_next = tmp_transition_next[data_sample_t.long()]
 
-        data_sample_t_next = torch.distributions.bernoulli.Bernoulli(
+        data_sample_t_next = torch.distributions.categorical.Categorical(
             data_bernouilli_proba_next
         ).sample()
-
-        # transform one hot encoding to a single value
-        data_sample_t_next = torch.argmax(data_sample_t_next, dim=1)
 
         data_sample_t = data_sample_t.view(size[0], size[0])
         data_sample_t_next = data_sample_t_next.view(size[0], size[0])

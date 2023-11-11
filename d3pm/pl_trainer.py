@@ -36,7 +36,9 @@ class MnistTrainer(pl.LightningModule):
         self.nb_time_steps = nb_time_steps
 
         # create the model
-        self.model = MnistModel(hidden_size=hidden_dim, num_bins=num_bins, nb_block=nb_block)
+        self.model = MnistModel(
+            hidden_size=hidden_dim, num_bins=num_bins, nb_block=nb_block
+        )
 
         # create the loss function
         self.loss = nn.CrossEntropyLoss()
@@ -53,13 +55,13 @@ class MnistTrainer(pl.LightningModule):
 
         return logits
 
-    def compute_loss(self, logits, data_next, init_data):
+    def compute_loss(self, logits, data, init_data):
         """
         Computes the loss.
         """
         # compute the loss
-        loss_vb = self.loss(logits, data_next)
-        loss_init = 0.01 * self.loss(logits, init_data)
+        loss_vb = self.loss(logits, data)
+        loss_init = 0.0 * self.loss(logits, init_data)
 
         loss = loss_vb + loss_init
 
@@ -90,6 +92,7 @@ class MnistTrainer(pl.LightningModule):
     # on training end
     def on_train_epoch_end(self):
         # we should generate some images
+        self.eval()
         self.generate()
 
     def generate(self):
@@ -106,30 +109,37 @@ class MnistTrainer(pl.LightningModule):
         time_step = torch.tensor([[1.0]]).to(device)
 
         # plot time step
-        plot_index = [0, 50, 100, 150, 200, 240]
+        plot_index = [0, 1, 50, 100, 150, 200, 240]
 
         for i in range(self.nb_time_steps):
+            if i in plot_index:
+                # save the image
+                self.save_image(data, i)
+
             # get the logits
 
             logits = self.forward(data, time_step)
 
             # get the probabilities
             logits_flatten = einops.rearrange(logits, "a b c d -> (a c d) b")
-            
+
             proba = F.softmax(logits_flatten, dim=1)
 
             # sample from the probabilities
             data = torch.distributions.Categorical(probs=proba).sample()
 
-            data = einops.rearrange(data, "(a c d) -> a c d",
-                      a=logits.shape[0], c=logits.shape[2], d=logits.shape[3])
+            data = einops.rearrange(
+                data,
+                "(a c d) -> a c d",
+                a=logits.shape[0],
+                c=logits.shape[2],
+                d=logits.shape[3],
+            )
 
             # update the time step
             time_step = time_step - 1.0 / self.nb_time_steps
 
-            if i in plot_index:
-                # save the image
-                self.save_image(data, i)
+            self.save_image(data, 254)
 
     def save_image(self, data, i):
         """
