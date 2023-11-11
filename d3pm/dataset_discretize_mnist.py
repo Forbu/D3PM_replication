@@ -39,7 +39,9 @@ class DiscretizeMnist(Dataset):
             root="./data", train=True, download=True
         )
 
-        self.transform = transforms.Compose([transforms.ToTensor()])
+        self.transform = transforms.Compose(
+            [transforms.ToTensor(), transforms.Resize(224)]
+        )
 
     def __len__(self):
         return len(self.mnist)
@@ -91,7 +93,9 @@ class DiscretizeD3PMMNIST(Dataset):
         beta_t = generate_beta_t(array_t)
 
         # compute the transition matrices
-        self.transition_matrices = compute_transition_matrices(beta_t, array_t, num_bins)
+        self.transition_matrices = compute_transition_matrices(
+            beta_t, array_t, num_bins
+        )
 
         # compute the accumulated transition matrices
         self.cumulated_transition = compute_accumulated_transition_matrices(
@@ -106,8 +110,9 @@ class DiscretizeD3PMMNIST(Dataset):
         idx_step = idx % self.nb_steps
 
         tmp_transition = torch.tensor(self.cumulated_transition[idx_step, :, :])
-        tmp_transition_next = torch.tensor(self.transition_matrices[min(idx_step+1, self.nb_steps-1),
-                                                         :, :])
+        tmp_transition_next = torch.tensor(
+            self.transition_matrices[min(idx_step + 1, self.nb_steps - 1), :, :]
+        )
 
         data, label = self.dataset[idx_data]
 
@@ -120,7 +125,7 @@ class DiscretizeD3PMMNIST(Dataset):
 
         # apply the transition matrix
         data_bernouilli_proba = tmp_transition[data_flatten]
-        
+
         data_sample_t = torch.distributions.categorical.Categorical(
             data_bernouilli_proba
         ).sample()

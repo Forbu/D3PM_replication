@@ -5,7 +5,7 @@ helper function for generating diffusion data
 import torch
 import numpy as np
 
-def generate_beta_t(array_t, beta_0=0.001, beta_T=0.01):
+def generate_beta_t(array_t, beta_0=0.001, beta_T=0.02):
     """
     Returns the beta_t values for each time step.
     It's a linear interpolation from beta_0 to beta_T.
