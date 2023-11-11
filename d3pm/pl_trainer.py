@@ -34,7 +34,7 @@ class MnistTrainer(pl.LightningModule):
         self.nb_time_steps = nb_time_steps
 
         # create the model
-        self.model = MnistModel(hidden_dim, num_bins, nb_block)
+        self.model = MnistModel(hidden_size=hidden_dim, num_bins=num_bins, nb_block=nb_block)
 
         # create the loss function
         self.loss = nn.CrossEntropyLoss()
@@ -45,6 +45,9 @@ class MnistTrainer(pl.LightningModule):
         """
         # get the logits
         logits = self.model(data, t)
+
+        # change the shape
+        logits = logits.permute(0, 3, 1, 2)
 
         return logits
 
@@ -60,7 +63,7 @@ class MnistTrainer(pl.LightningModule):
 
         return loss, (loss_vb, loss_init)
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch, _):
         """
         Training step.
         """
@@ -68,10 +71,12 @@ class MnistTrainer(pl.LightningModule):
         data, data_next, _, init_data, time_step = batch
 
         # get the logits
-        logits = self.forward(data, time_step)
+        logits = self.forward(data_next.long(), time_step.float())
 
         # compute the loss
-        loss, (loss_vb, loss_init) = self.compute_loss(logits, data_next, init_data)
+        loss, (loss_vb, loss_init) = self.compute_loss(
+            logits, data.long(), init_data.long()
+        )
 
         # log the loss
         self.log("train_loss", loss)
@@ -83,7 +88,7 @@ class MnistTrainer(pl.LightningModule):
     # on training end
     def on_train_epoch_end(self):
         # we should generate some images
-        pass
+        self.generate()
 
     def generate(self):
         """
@@ -98,13 +103,7 @@ class MnistTrainer(pl.LightningModule):
         time_step = torch.tensor([[1.0]])
 
         # plot time step
-        plot_index = [
-            0,
-            50,
-            100,
-            150,
-            200, 240
-        ]
+        plot_index = [0, 50, 100, 150, 200, 240]
 
         for i in range(self.nb_time_steps):
             # get the logits
@@ -134,7 +133,16 @@ class MnistTrainer(pl.LightningModule):
         plt.title(f"data = {i}")
 
         # save the figure
-        plt.savefig(f"images/data_{i}.png")
+        plt.savefig(f"/home/images/data_{i}.png")
 
         # close the figure
         plt.close()
+
+    def configure_optimizers(self):
+        """
+        Configure the optimizer.
+        """
+        # create the optimizer
+        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+
+        return optimizer

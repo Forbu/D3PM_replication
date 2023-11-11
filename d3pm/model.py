@@ -59,6 +59,9 @@ class MnistModel(nn.Module):
         # get the embedding
         x = self.embedding(data) # (batch_size, 28, 28, hidden_size)
 
+        if len(t.shape) == 1:
+            t = t.unsqueeze(1)
+
         # get the time embedding
         t = self.time_layer(t) # (batch_size, hidden_size)
 
