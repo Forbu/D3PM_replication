@@ -93,7 +93,8 @@ class MnistTrainer(pl.LightningModule):
     def on_train_epoch_end(self):
         # we should generate some images
         self.eval()
-        self.generate()
+        with torch.no_grad():
+            self.generate()
 
     def generate(self):
         """
