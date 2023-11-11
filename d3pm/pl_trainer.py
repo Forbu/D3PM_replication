@@ -21,7 +21,7 @@ class MnistTrainer(pl.LightningModule):
     Trainer module for the MNIST model.
     """
 
-    def __init__(self, hidden_dim, num_bins, nb_block, nb_time_steps=254):
+    def __init__(self, hidden_dim, num_bins, nb_time_steps=254):
         """
         Args:
             hidden_dim (int): hidden dimension of the model
@@ -32,12 +32,12 @@ class MnistTrainer(pl.LightningModule):
 
         self.hidden_dim = hidden_dim
         self.num_bins = num_bins
-        self.nb_block = nb_block
+
         self.nb_time_steps = nb_time_steps
 
         # create the model
         self.model = MnistModel(
-            hidden_size=hidden_dim, num_bins=num_bins, nb_block=nb_block
+            hidden_size=hidden_dim, num_bins=num_bins
         )
 
         # create the loss function

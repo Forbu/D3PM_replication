@@ -16,7 +16,7 @@ class MnistModel(nn.Module):
     It also takes a time step in input
     """
 
-    def __init__(self, num_bins=4, hidden_size=10, nb_block=3):
+    def __init__(self, num_bins=4, hidden_size=10):
         """
         Args:
             num_bins (int): number of bins to discretize the data into
@@ -25,7 +25,7 @@ class MnistModel(nn.Module):
 
         self.num_bins = num_bins
         self.hidden_size = hidden_size
-        self.nb_block = nb_block
+
 
         # embedding layer
         self.embedding = nn.Embedding(num_bins, hidden_size)
@@ -67,7 +67,7 @@ class MnistModel(nn.Module):
 
         # loop through the blocks
         x = self.blocks(x)
-        
+
         x = x.permute(0, 2, 3, 1)
 
         return x
