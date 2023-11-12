@@ -140,4 +140,4 @@ class DiscretizeD3PMMNIST(Dataset):
         data_sample_t = data_sample_t.view(size[0], size[0])
         data_sample_t_next = data_sample_t_next.view(size[0], size[0])
 
-        return data_sample_t, data_sample_t_next, label, data, idx_step / self.nb_steps
+        return data_sample_t, data_sample_t_next, label, data, (idx_step+1) / (self.nb_steps-1)
