@@ -5,7 +5,8 @@ helper function for generating diffusion data
 import torch
 import numpy as np
 
-def generate_beta_t(array_t, beta_0=0.001, beta_T=0.02):
+
+def generate_beta_t(array_t, beta_0=0.001, beta_T=0.04):
     """
     Returns the beta_t values for each time step.
     It's a linear interpolation from beta_0 to beta_T.
@@ -21,7 +22,6 @@ def generate_beta_t(array_t, beta_0=0.001, beta_T=0.02):
         beta_t[t] = beta_0 + (beta_T - beta_0) * (t / (nb_steps - 1))
 
     return beta_t
-    
 
 
 def compute_transition_matrices(beta_t, array_t, num_bins=4):
