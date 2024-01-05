@@ -172,3 +172,5 @@ data/MNIST/raw/train-images-idx3-ubyte
 data/MNIST/raw/train-images-idx3-ubyte.gz
 data/MNIST/raw/train-labels-idx1-ubyte
 data/MNIST/raw/train-labels-idx1-ubyte.gz
+lightning_logs/version_0/events.out.tfevents.1704471648.codespaces-01f271
+lightning_logs/version_0/hparams.yaml

@@ -165,7 +165,7 @@ class MnistTrainer(pl.LightningModule):
         plt.title(f"data = {i}")
 
         # save the figure
-        plt.savefig(f"/content/images/data_{i}.png")
+        plt.savefig(f"/workspaces/D3PM_replication/tests/figures/data_{i}.png")
 
         # close the figure
         plt.close()
