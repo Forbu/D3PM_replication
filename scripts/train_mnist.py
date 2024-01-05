@@ -26,12 +26,12 @@ loader = torch.utils.data.DataLoader(
 )
 
 # now we create the model
-model = MnistTrainer(hidden_dim=16, num_bins=4, nb_block=3, nb_time_steps=254)
+model = MnistTrainer(hidden_dim=16, num_bins=4, nb_time_steps=254)
 
 # now we create the trainer
 trainer = pl.Trainer(
     max_epochs=10,
-    limit_train_batches=0.01,
+    limit_train_batches=0.002,
     gradient_clip_val=1.0,
 )
 

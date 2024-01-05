@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 import lightning.pytorch as pl
 
-from d3pm.model import MnistModel
+from d3pm.model_deeplearningai import ContextUnet
 
 
 def init_weights(m):
@@ -27,7 +27,7 @@ class MnistTrainer(pl.LightningModule):
     Trainer module for the MNIST model.
     """
 
-    def __init__(self, hidden_dim, num_bins, nb_time_steps=254):
+    def __init__(self, hidden_dim=128, num_bins=4, nb_time_steps=254):
         """
         Args:
             hidden_dim (int): hidden dimension of the model
@@ -42,7 +42,7 @@ class MnistTrainer(pl.LightningModule):
         self.nb_time_steps = nb_time_steps
 
         # create the model
-        self.model = MnistModel(hidden_size=hidden_dim, num_bins=num_bins)
+        self.model = ContextUnet(in_channels=1, n_feat=hidden_dim, n_cfeat=10, height=28, nb_class=num_bins)
 
         # create the loss function
         self.loss = nn.CrossEntropyLoss()
@@ -53,11 +53,12 @@ class MnistTrainer(pl.LightningModule):
         """
         Forward pass of the model.
         """
+        
+        data = data.unsqueeze(1)
+        t = t.unsqueeze(1)
+
         # get the logits
         logits = self.model(data, t)
-
-        # change the shape
-        logits = logits.permute(0, 3, 1, 2)
 
         return logits
 
@@ -108,9 +109,10 @@ class MnistTrainer(pl.LightningModule):
         """
         # generate some images
         device = self.device
+        self.eval()
 
         # initialize the data with random values between 0 and num_bins
-        data = torch.randint(0, self.num_bins, (1, 224, 224)).long().to(device)
+        data = torch.randint(0, self.num_bins, (1, 1, 28, 28)).long().to(device)
 
         # initialize the time step
         time_step = torch.tensor([[1.0]]).to(device)
@@ -127,6 +129,7 @@ class MnistTrainer(pl.LightningModule):
 
             logits = self.forward(data, time_step)
 
+            logits = logits.permute(0, 2, 3, 1)
             # get the probabilities
             logits_flatten = einops.rearrange(logits, "a b c d -> (a c d) b")
 
@@ -146,7 +149,10 @@ class MnistTrainer(pl.LightningModule):
             # update the time step
             time_step = time_step - 1.0 / self.nb_time_steps
 
-            self.save_image(data, 254)
+        # save the image
+        self.save_image(data, self.nb_time_steps)
+
+        self.train()
 
     def save_image(self, data, i):
         """

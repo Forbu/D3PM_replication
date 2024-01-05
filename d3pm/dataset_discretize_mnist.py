@@ -40,7 +40,7 @@ class DiscretizeMnist(Dataset):
         )
 
         self.transform = transforms.Compose(
-            [transforms.ToTensor(), transforms.Resize(224)]
+            [transforms.ToTensor()]
         )
 
     def __len__(self):
