@@ -60,7 +60,7 @@ class ContextUnet(nn.Module):
         # x is the input image, c is the context label, t is the timestep, context_mask says which samples to block the context on
 
         # pass the input image through the initial convolutional layer
-        x = x.permute(0, 2, 3, 1).long().squeeze() # permute to (batch, h, w, n_feat)
+        x = x.permute(0, 2, 3, 1).long().squeeze(-1) # permute to (batch, h, w, n_feat)
         x = self.embedding(x)
         x = x.permute(0, 3, 1, 2).float()
         x = self.init_conv(x)

@@ -31,7 +31,7 @@ model = MnistTrainer(hidden_dim=16, num_bins=4, nb_time_steps=254)
 # now we create the trainer
 trainer = pl.Trainer(
     max_epochs=10,
-    limit_train_batches=0.002,
+    limit_train_batches=0.0005,
     gradient_clip_val=1.0,
 )
 

@@ -112,7 +112,7 @@ class MnistTrainer(pl.LightningModule):
         self.eval()
 
         # initialize the data with random values between 0 and num_bins
-        data = torch.randint(0, self.num_bins, (1, 1, 28, 28)).long().to(device)
+        data = torch.randint(0, self.num_bins, (1, 28, 28)).long().to(device)
 
         # initialize the time step
         time_step = torch.tensor([[1.0]]).to(device)
@@ -126,12 +126,14 @@ class MnistTrainer(pl.LightningModule):
                 self.save_image(data, i)
 
             # get the logits
+            if data.shape[1] == 1:
+                data = data.squeeze(1)
 
             logits = self.forward(data, time_step)
 
             logits = logits.permute(0, 2, 3, 1)
             # get the probabilities
-            logits_flatten = einops.rearrange(logits, "a b c d -> (a c d) b")
+            logits_flatten = einops.rearrange(logits, "a b c d -> (a b c) d")
 
             proba = F.softmax(logits_flatten, dim=1)
 
@@ -140,10 +142,10 @@ class MnistTrainer(pl.LightningModule):
 
             data = einops.rearrange(
                 data,
-                "(a c d) -> a c d",
+                "(a b c) -> a b c",
                 a=logits.shape[0],
+                b=logits.shape[1],
                 c=logits.shape[2],
-                d=logits.shape[3],
             )
 
             # update the time step
