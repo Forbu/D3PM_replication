@@ -27,7 +27,7 @@ Also we only have 3 bins (categorical variables) in the above exemple images.
 
 Also as the base model we use ContextUnet architecture coming from the deeplearning.ai course on diffusion process : https://deeplearning.ai/short-courses/how-diffusion-models-work/ 
 
-## Notes on the current developpment
+## Notes on the current development
 
 The modification is concern the passage here :
 
