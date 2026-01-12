@@ -40,6 +40,6 @@ In our implementation, we currently directly parametrize <img width="96" alt="Sc
 
 A second interesting point : in the current code we only use the Uniform Noise and not the absorbing noise setup which seems to give better result in the paper.
 
-
+> [!CAUTION] This was a repo for an old discrete diffusion method. Today i would use a simpler discrete diffusion set like the one used for diffusion llm like https://arxiv.org/pdf/2508.02193 
 
 
